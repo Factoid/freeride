@@ -1,0 +1,15 @@
+#!/bin/sh
+
+for file in rides/3/*
+do
+  echo $file
+  ./bike 3 < $file
+  echo ""
+done
+
+for file in rides/8/*
+do
+  echo $file
+  ./bike 8 < $file
+  echo ""
+done

@@ -1,0 +1,72 @@
+#!/usr/bin/python -u
+import pygtk
+pygtk.require('2.0')
+import gtk
+import sys
+import gobject
+import re
+from bikelib import *
+
+class Bike:
+  def delete_event(self,widget,event,data=None):
+    return False
+
+  def destroy(self,widget,data=None):
+    gtk.main_quit()
+
+  def process(self, line):
+    match = re.findall( "(\d+) (\d+)", line )
+    frame = int( match[0][0] )
+    time_s = float( match[0][1] ) / 1000.0
+    if frame == 1:
+      self.startTime = time_s
+      self.lastTime = time_s
+    delta_s = time_s - self.lastTime_s
+    kcal = 0
+    if delta_s > 0:
+      self.km_h = circ_km * 3600 / delta_s
+      speed_ms = 1.0/delta_s*circ_m
+      joules = joules_required( speed_ms, 8 )
+      kcal = kcal_required( joules )  
+      self.watts = joules / delta_s
+    self.total_km += circ_km
+    self.total_kcal += kcal
+    self.lastTime_s = time_s
+    duration_s = time_s - self.startTime
+    self.total_h = int(duration_s/3600)
+    duration_s -= 3600 * self.total_h
+    self.total_m = int(duration_s/60)
+    duration_s -= 60 * self.total_m
+    self.total_s = int(duration_s)
+
+  def newData(self, source, condition):
+    self.process(source.readline())
+    self.button.set_markup( "<span size='68000'>%.2f km/h\n%.2f kcal\n%.2f km\n%002d:%002d:%002d\n%0.2f Watts</span>" % (self.km_h, self.total_kcal, self.total_km, self.total_h, self.total_m, self.total_s, self.watts) )
+    return True
+
+  def __init__(self):
+    self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    self.window.connect("delete_event", self.delete_event)
+    self.window.connect("destroy",self.destroy)
+    self.window.set_border_width(10)
+    self.button = gtk.Label( "Hello World" )
+    self.button.set_use_markup(True)
+    self.button.set_markup( "" )
+#    self.button.connect( "clicked", self.hello, None )
+    self.window.add(self.button)
+    self.button.show()
+    self.window.show()
+    gobject.io_add_watch(sys.stdin,gobject.IO_IN,self.newData)
+    self.lastTime_s = 0
+    self.total_kcal = 0
+    self.total_km = 0
+    self.total_h = 0
+    self.total_m = 0
+    self.total_s = 0
+
+  def main(self):
+    gtk.main()
+
+if __name__ == "__main__":
+  hello = Bike()
+  hello.main()

@@ -1,0 +1,50 @@
+#!/usr/bin/python
+import sys
+import re
+import serial
+from bikelib import *
+
+def kmh_to_ms( kmh ):
+  return kmh * 3600 / 1000
+
+startTime_s = -1
+badframe = 0
+lastTime_s = 0
+totalkCal = 0
+resist_level = 8
+
+if( len(sys.argv) >= 2 ):
+  resist_level = int(sys.argv[1])
+
+for line in sys.stdin:
+  match = re.findall( "(\d+) (\d+)", line )
+  frame = int( match[0][0] )
+  time_s = float( match[0][1] )/1000.0
+  delta_s = time_s - lastTime_s
+  speed_ms = 1.0/delta_s*circ_m
+  kCal = 0
+  if( delta_s < 0.070 ):
+    badframe += 1
+  else:
+    joules = joules_required( speed_ms, resist_level )
+    #joules = joules_2( speed_ms, resist_level )
+    totalkCal += kcal_required( joules )
+  
+  lastTime_s = time_s
+  if startTime_s == -1: startTime_s = time_s
+
+dist_km = (frame-badframe)*circ_km
+duration_s = time_s - startTime_s
+vel_kmh = dist_km/duration_s*3600
+print "Resistance level", resist_level
+print "distance", dist_km, "km"
+v = duration_s
+h = int(v/3600)
+v -= h * 3600
+m = int(v/60)
+v -= m * 60
+s = v
+print "duration %002i:%002i:%002i" % (h,m,s)
+print "speed %0.02f km/h" % (vel_kmh)
+print "energy %0.02f kcal" % (totalkCal)
+print "watts %0.02f" % ((totalkCal / joules_to_kcal * body_eff) / duration_s)

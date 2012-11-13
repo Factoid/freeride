@@ -1,0 +1,15 @@
+#!/usr/bin/python -u
+import sys
+import time
+import re
+
+try:
+  start = time.clock()
+  for line in sys.stdin:
+    match = re.findall( "(\d+) (\d+)", line )
+    frame = int( match[0][0] )
+    time_s = float( match[0][1] )/1000.0
+    while( time.clock() - start < time_s ): pass
+    sys.stdout.write(line)
+except:
+  pass
