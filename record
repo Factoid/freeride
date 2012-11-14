@@ -1,4 +1,18 @@
 #!/bin/sh
-fname=`date +%Y_%M_%d`.txt$1
+if [ ! -f /dev/ttyACM0 ]
+then
+  echo "Couldn't open file for reading"
+  exit 1
+fi
+
+fname=`date +%Y_%m_%d`.txt$1
 echo "filename is "$fname
-stty -F /dev/ttyACM0 raw && cat /dev/ttyACM0 | tee rides/8/$fname | ./gtkbike
+mkdir -p rides/8/
+stty -F /dev/ttyACM0 raw
+mkfifo myfifo
+tee rides/8/$fname < /dev/ttyACM0 > myfifo&
+cpid=$!
+./gtkbike < myfifo
+kill $cpid
+rm myfifo
+./bike < rides/8/$fname

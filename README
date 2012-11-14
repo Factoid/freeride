@@ -1,0 +1,38 @@
+FreeRide v1.0
+==============
+
+This is a functional bike computer/data logger intended for trainer bikes.
+It is composed of an arduino program designed to output data to a serial
+port tracking timestamps of wheel revolutions. That input stream can be
+saved for later analysis, or visualized in real time by piping it into
+the appropriate program.
+
+Included in this package are:
+
+AUTHORS - Contributing developers list
+
+bike - Python script that takes a resistance level and timing data from
+  standard input and produces ride stats as output
+  
+BikeComputer.ino - Arduino sketch which records timing information from
+a wheel sensor, and outputs it to the serial port
+
+bikelib.py - Common methods and data used by the other python scripts
+
+COPYING - GPL 3.0 Licence file
+
+dump_all - Executes ./bike on each ride file in the ./rides/#/ directory
+  Where # is the resistiance level
+  
+gtkbike - pyGTK application which provides realtime display from the
+  BikeComputer's data stream
+  
+playback - Simulates a real time run of recorded ride data by delaying
+  writes based on the time of the event. Used to 'watch' a data log
+  in gtkbike
+  
+README - This file
+
+record - Script to automatically generate a ride file name, read the
+  data from the serial port, and log the data while feeding it into
+  gtkbike for display.

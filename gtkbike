@@ -6,6 +6,8 @@ import sys
 import gobject
 import re
 from bikelib import *
+import os
+import signal
 
 class Bike:
   def delete_event(self,widget,event,data=None):
