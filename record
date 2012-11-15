@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ ! -f /dev/ttyACM0 ]
+if [ ! -e /dev/ttyACM0 ]
 then
   echo "Couldn't open file for reading"
   exit 1
